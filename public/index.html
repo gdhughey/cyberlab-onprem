@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#08111f">
@@ -13,16 +13,16 @@
 <body>
 
 <div class="navbar">
-  <button id="backBtn" class="back-btn" onclick="swPage('checkout')">&#8592;</button>
-  <div class="logo"><div class="ndot"></div>CIS TRACKER</div>
+  <button id="backBtn" class="back-btn" aria-label="Back to Check Out" onclick="swPage('checkout')">&#8592;</button>
+  <div class="logo"><div class="ndot" aria-hidden="true"></div>CIS TRACKER</div>
   <div class="nav-right">
     <div id="gearWrap">
-      <button id="gearBtn" onclick="toggleGear()">&#9881;</button>
-      <div id="gearDrop">
-        <div id="miAdmin" class="gear-item gear-admin" onclick="showAdmin()">👥 Admin Panel</div>
-        <div class="gear-item" onclick="showChp()">🔑 Change Password</div>
-        <div class="gear-item" onclick="showMfa()">📱 Setup MFA</div>
-        <div class="gear-item gear-danger" onclick="doLogout()">🚪 Sign Out</div>
+      <button id="gearBtn" aria-label="Settings menu" aria-haspopup="true" aria-expanded="false" onclick="toggleGear()">&#9881;</button>
+      <div id="gearDrop" role="menu">
+        <div id="miAdmin" class="gear-item gear-admin" role="menuitem" tabindex="0" onclick="showAdmin()">👥 Admin Panel</div>
+        <div class="gear-item" role="menuitem" tabindex="0" onclick="showChp()">🔑 Change Password</div>
+        <div class="gear-item" role="menuitem" tabindex="0" onclick="showMfa()">📱 Setup MFA</div>
+        <div class="gear-item gear-danger" role="menuitem" tabindex="0" onclick="doLogout()">🚪 Sign Out</div>
       </div>
     </div>
   </div>
@@ -39,9 +39,9 @@
 
     <div class="card">
       <div class="ctitle">📦 Equipment Entry</div>
-      <div class="mtog">
-        <button class="mt on" onclick="swMode('scan')" id="mt-scan">📷 AI Scan</button>
-        <button class="mt" onclick="swMode('manual')" id="mt-manual">✏️ Manual</button>
+      <div class="mtog" role="group" aria-label="Entry mode">
+        <button class="mt on" onclick="swMode('scan')" id="mt-scan" aria-pressed="true">📷 AI Scan</button>
+        <button class="mt" onclick="swMode('manual')" id="mt-manual" aria-pressed="false">✏️ Manual</button>
       </div>
 
       <div id="scanMode">
@@ -55,13 +55,13 @@
         <div id="imgPrev" class="hidden">
           <div id="imgGrid" class="img-grid"></div>
           <div class="brow">
-            <button class="btn bo bsm" id="addMoreBtn" onclick="addMore()">＋ Add More</button>
-            <button class="btn bp" id="scanbtn" onclick="doScan()">🤖 Scan with AI</button>
-            <button class="btn bo bsm" onclick="clearImg()">✕ Clear All</button>
+            <button class="btn bo bsm" id="addMoreBtn" aria-label="Add more images" onclick="addMore()">＋ Add More</button>
+            <button class="btn bp" id="scanbtn" aria-label="Scan selected images with AI" onclick="doScan()">🤖 Scan with AI</button>
+            <button class="btn bo bsm" aria-label="Clear all images" onclick="clearImg()">✕ Clear All</button>
           </div>
         </div>
         <div id="scanSpin" class="hidden">
-          <div class="sw"><div class="sp"></div><span id="scanMsg">Analyzing...</span></div>
+          <div class="sw"><div class="sp" aria-hidden="true"></div><span id="scanMsg" role="status" aria-live="polite">Analyzing...</span></div>
         </div>
       </div>
 
@@ -99,8 +99,8 @@
         <span id="v_dt" class="mono small"></span>
       </div>
       <div class="brow">
-        <button class="btn bg" id="confbtn" onclick="confirmCO()">✔ Save Checkout</button>
-        <button class="btn bo bsm" onclick="cancelV()">Cancel</button>
+        <button class="btn bg" id="confbtn" aria-label="Save checkout" onclick="confirmCO()">✔ Save Checkout</button>
+        <button class="btn bo bsm" aria-label="Cancel checkout" onclick="cancelV()">Cancel</button>
       </div>
     </div>
   </div>
@@ -108,30 +108,59 @@
   <!-- ═══════ CHECK IN ═══════ -->
   <div class="page" id="pg-checkin">
     <div class="card">
-      <div class="ctitle">📥 Currently Checked Out</div>
-      <div id="ciList"><div class="es"><div class="ei">📥</div><div class="et">Tap Refresh to load</div></div></div>
-      <button class="btn bo bsm bfull mt10" onclick="loadCI()">🔄 Refresh</button>
+      <div class="ctitle">
+        <span>📥 Currently Checked Out</span>
+        <button class="btn bo bsm" aria-label="Refresh checked-out list" onclick="loadCI()">🔄 Refresh</button>
+      </div>
+      <div class="fg">
+        <label class="fl" for="ciSearch">Search</label>
+        <input id="ciSearch" class="fi" type="search" placeholder="🔎 Search by name, serial, or barcode..." oninput="filterCI()" autocomplete="off">
+      </div>
+      <div id="ciList" aria-live="polite"><div class="es"><div class="ei" aria-hidden="true">📥</div><div class="et">Loading...</div></div></div>
+    </div>
+  </div>
+
+  <!-- ═══════ INVENTORY (admin) ═══════ -->
+  <div class="page" id="pg-inventory">
+    <div class="card">
+      <div class="ctitle">
+        <span>📦 Inventory</span>
+        <button class="btn bo bsm" aria-label="Refresh inventory" onclick="loadInventory()">🔄 Refresh</button>
+      </div>
+      <div class="fg">
+        <label class="fl" for="invSearch">Search</label>
+        <input id="invSearch" class="fi" type="search" placeholder="🔎 Search by name, serial, or barcode..." oninput="filterInventory()" autocomplete="off">
+      </div>
+      <div class="chips" role="tablist" aria-label="Status filter">
+        <button class="chip on" data-inv-status="all" role="tab" aria-selected="true" onclick="setInvStatus('all')">All</button>
+        <button class="chip" data-inv-status="available" role="tab" aria-selected="false" onclick="setInvStatus('available')">Available</button>
+        <button class="chip" data-inv-status="checked_out" role="tab" aria-selected="false" onclick="setInvStatus('checked_out')">Checked Out</button>
+      </div>
+      <div id="invList" aria-live="polite"><div class="es"><div class="et">Loading...</div></div></div>
     </div>
   </div>
 
   <!-- ═══════ LOG ═══════ -->
   <div class="page" id="pg-log">
     <div class="card">
-      <div class="ctitle">📋 Activity Log</div>
-      <div id="logW"><div class="es"><div class="ei">📋</div><div class="et">Tap Refresh to load</div></div></div>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button class="btn bo bsm" style="flex:1" onclick="loadLog()">🔄 Refresh</button>
-        <button class="btn bsm" id="clearLogBtn" style="flex:1;background:var(--red);display:none" onclick="clearLog()">🗑 Clear Log</button>
+      <div class="ctitle">
+        <span>📋 Activity Log</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn bo bsm" aria-label="Refresh activity log" onclick="loadLog()">🔄 Refresh</button>
+          <button class="btn bsm br" id="clearLogBtn" style="display:none" onclick="clearLog()">🗑 Clear</button>
+        </div>
       </div>
+      <div id="logW" aria-live="polite"><div class="es"><div class="ei" aria-hidden="true">📋</div><div class="et">Loading...</div></div></div>
     </div>
   </div>
 
 </div>
 
-<div class="btabs">
-  <button class="bt on" onclick="swPage('checkout')" id="bt-checkout"><span class="i">📤</span>Check Out</button>
-  <button class="bt" onclick="swPage('checkin')" id="bt-checkin"><span class="i">📥</span>Check In</button>
-  <button class="bt hidden" style="display:none" onclick="swPage('log')" id="bt-log"><span class="i">📋</span>Log</button>
+<div class="btabs" role="tablist" aria-label="Main navigation">
+  <button class="bt on" role="tab" aria-selected="true" aria-controls="pg-checkout" onclick="swPage('checkout')" id="bt-checkout"><span class="i" aria-hidden="true">📤</span>Check Out</button>
+  <button class="bt" role="tab" aria-selected="false" aria-controls="pg-checkin" onclick="swPage('checkin')" id="bt-checkin"><span class="i" aria-hidden="true">📥</span>Check In</button>
+  <button class="bt hidden" role="tab" aria-selected="false" aria-controls="pg-inventory" style="display:none" onclick="swPage('inventory')" id="bt-inventory"><span class="i" aria-hidden="true">📦</span>Inventory</button>
+  <button class="bt hidden" role="tab" aria-selected="false" aria-controls="pg-log" style="display:none" onclick="swPage('log')" id="bt-log"><span class="i" aria-hidden="true">📋</span>Log</button>
 </div>
 
 <div id="toast"></div>
@@ -147,16 +176,17 @@
       <input id="lp" type="password" placeholder="Password" autocomplete="current-password" class="ov-input">
       <button onclick="doLogin()" class="ov-btn">Sign In</button>
       <div class="ov-link" onclick="showForgot()">Forgot password?</div>
-      <div id="le" class="ov-err"></div>
+      <div id="le" class="ov-err" role="alert"></div>
     </div>
 
     <div id="cf" class="hidden">
       <div class="ov-warn">First login — set your new password</div>
+      <input id="cpCur" type="password" placeholder="Current password" autocomplete="current-password" class="ov-input">
       <input id="np1" type="password" placeholder="New password" autocomplete="new-password" class="ov-input">
       <input id="np2" type="password" placeholder="Confirm password" autocomplete="new-password" class="ov-input">
       <div class="ov-hint">Min 10 chars, upper, lower, digit, special</div>
       <button onclick="doForceChg()" class="ov-btn">Set Password</button>
-      <div id="ce" class="ov-err"></div>
+      <div id="ce" class="ov-err" role="alert"></div>
     </div>
 
     <div id="vf" class="hidden">
@@ -165,7 +195,7 @@
       <div class="ov-sub">Enter the 6-digit code from your authenticator app</div>
       <input id="mc2" placeholder="000000" type="tel" maxlength="6" autocomplete="one-time-code" class="ov-input center mono">
       <button onclick="doMfaLoginVerify()" class="ov-btn">Verify</button>
-      <div id="me2" class="ov-err"></div>
+      <div id="me2" class="ov-err" role="alert"></div>
     </div>
 
     <div id="fp" class="hidden">
@@ -174,17 +204,17 @@
       <input id="fpEmail" type="email" placeholder="you@example.com" class="ov-input">
       <button onclick="doForgot()" class="ov-btn">Send Reset Link</button>
       <div class="ov-link" onclick="showLoginForm()">← Back to login</div>
-      <div id="fpMsg" class="ov-err"></div>
+      <div id="fpMsg" class="ov-err" role="alert"></div>
     </div>
   </div>
 </div>
 
 <!-- ═══════ ADMIN PANEL ═══════ -->
-<div id="adminOv" class="ov hidden">
+<div id="adminOv" class="ov hidden" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
   <div class="admin-wrap">
     <div class="admin-head">
-      <div class="admin-title">👥 Admin Panel</div>
-      <button class="btn bo bsm" onclick="hideAdmin()">✕ Close</button>
+      <div class="admin-title" id="adminTitle">👥 Admin Panel</div>
+      <button class="btn bo bsm" aria-label="Close admin panel" onclick="hideAdmin()">✕ Close</button>
     </div>
 
     <div class="admin-tabs">
@@ -247,10 +277,10 @@
 </div>
 
 <!-- ═══════ CHANGE PASSWORD MODAL ═══════ -->
-<div id="chpOv" class="ov hidden">
+<div id="chpOv" class="ov hidden" role="dialog" aria-modal="true" aria-labelledby="chpTitle">
   <div class="ov-card">
-    <div class="ov-title">🔑 Change Password</div>
-    <input id="cpOld" type="password" placeholder="Current password" class="ov-input">
+    <div class="ov-title" id="chpTitle">🔑 Change Password</div>
+    <input id="cpOld" type="password" placeholder="Current password" autocomplete="current-password" class="ov-input">
     <input id="cpN1" type="password" placeholder="New password" class="ov-input">
     <input id="cpN2" type="password" placeholder="Confirm new password" class="ov-input">
     <div class="ov-hint">Min 10 chars, upper, lower, digit, special</div>
@@ -261,9 +291,9 @@
 </div>
 
 <!-- ═══════ MFA SETUP MODAL ═══════ -->
-<div id="mfaOv" class="ov hidden">
+<div id="mfaOv" class="ov hidden" role="dialog" aria-modal="true" aria-labelledby="mfaTitle">
   <div class="ov-card">
-    <div class="ov-title">📱 Setup MFA</div>
+    <div class="ov-title" id="mfaTitle">📱 Setup MFA</div>
     <div class="ov-sub">Scan the QR code with Google Authenticator, Authy, or 1Password.</div>
     <img id="mfaQr" class="mfa-qr" alt="">
     <div class="ov-hint">Or enter this key manually:<br><span id="mfaSecret" class="mono accent selectable"></span></div>
@@ -271,6 +301,22 @@
     <button onclick="doMfaEnable()" class="ov-btn">Verify &amp; Enable</button>
     <button onclick="hideMfa()" class="ov-btn-ghost">Cancel</button>
     <div id="mfaErr" class="ov-err"></div>
+  </div>
+</div>
+
+<!-- ═══════ EDIT EQUIPMENT MODAL ═══════ -->
+<div id="eqEditOv" class="ov hidden" role="dialog" aria-modal="true" aria-labelledby="eqEditTitle">
+  <div class="ov-card">
+    <div class="ov-title" id="eqEditTitle">✏️ Edit Equipment</div>
+    <input id="eqEditId" type="hidden">
+    <div class="fg" style="text-align:left"><label class="fl" for="eqEditName">Name *</label><input id="eqEditName" class="fi" placeholder="Name"></div>
+    <div class="fg" style="text-align:left"><label class="fl" for="eqEditType">Type</label><input id="eqEditType" class="fi" placeholder="Type"></div>
+    <div class="fg" style="text-align:left"><label class="fl" for="eqEditSerial">Serial #</label><input id="eqEditSerial" class="fi" placeholder="Serial number"></div>
+    <div class="fg" style="text-align:left"><label class="fl" for="eqEditBarcode">Barcode</label><input id="eqEditBarcode" class="fi" placeholder="Barcode"></div>
+    <div class="fg" style="text-align:left"><label class="fl" for="eqEditNotes">Notes</label><input id="eqEditNotes" class="fi" placeholder="Notes"></div>
+    <button onclick="saveEqEdit()" class="ov-btn">Save Changes</button>
+    <button onclick="hideEqEdit()" class="ov-btn-ghost">Cancel</button>
+    <div id="eqEditErr" class="ov-err" role="alert"></div>
   </div>
 </div>
 

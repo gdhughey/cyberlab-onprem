@@ -28,7 +28,35 @@ function getById(id) {
   `).get(id);
 }
 
+// Look up an existing equipment row by barcode and/or serial number.
+// Returns null if nothing matches OR if both identifiers are blank.
+function findByIdentifier({ barcode, serial_number }) {
+  const bc = (barcode || '').trim();
+  const sn = (serial_number || '').trim();
+  if (!bc && !sn) return null;
+  const conds = [];
+  const params = [];
+  if (bc) { conds.push('lower(trim(barcode)) = lower(trim(?))'); params.push(bc); }
+  if (sn) { conds.push('lower(trim(serial_number)) = lower(trim(?))'); params.push(sn); }
+  // Match if either identifier matches (logical OR).
+  return db.prepare(`
+    SELECT e.*, u.username AS checked_out_username
+    FROM equipment e
+    LEFT JOIN users u ON u.id = e.checked_out_by
+    WHERE ${conds.join(' OR ')}
+    LIMIT 1
+  `).get(...params) || null;
+}
+
 function create({ name, type, serial_number, barcode, category, image_path, notes }) {
+  // Server-side dedupe: if a barcode or serial number is supplied and an
+  // equipment row already exists with that identifier, return that row
+  // instead of creating a duplicate. This prevents the checkout flow from
+  // accidentally inflating the equipment table when the same physical
+  // item is scanned multiple times. Items without any identifier are
+  // always created as new rows (e.g. unbarcoded cables).
+  const existing = findByIdentifier({ barcode, serial_number });
+  if (existing) return existing;
   const info = db.prepare(`
     INSERT INTO equipment (name, type, serial_number, barcode, category, image_path, notes)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -149,6 +177,6 @@ function clearLog() {
 }
 
 module.exports = {
-  listAll, getById, create, update, remove,
+  listAll, getById, create, update, remove, findByIdentifier,
   checkout, checkin, getLog, clearLog, getOverdue, getCheckoutsForUser,
 };
